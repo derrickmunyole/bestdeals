@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -14,9 +14,22 @@ import ItemSearchComponent from "../components/ItemSearchComponent";
 import SearchModal from "../components/SearchModal";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomButtonComponent from "../components/CustomButtonComponent";
+import CarouselComponent from "../components/CarouselComponent";
+import itemsApi from "../api/items";
 
 function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
+  const [items, setItems] = useState([]);
+
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const handleLoadMore = (itemType) => {
+    setIsLoadingMore(true);
+    navigation.navigate("All", { itemType: itemType });
+    // Call API or data loading logic
+
+    setIsLoadingMore(false);
+  };
 
   const handleSearchFieldFocus = () => {
     setModalVisible(true);
@@ -25,6 +38,35 @@ function HomeScreen({ navigation }) {
   const handleCloseModal = () => {
     setModalVisible(false);
   };
+
+  useEffect(() => {
+    loadItems();
+  }, []);
+
+  const loadItems = async () => {
+    const response = await itemsApi.getAllItems();
+    if (response.length > 0) {
+      setItems(response);
+    } else {
+      setItems([]);
+    }
+  };
+
+  // useEffect(() => {
+  //   console.log(items);
+  // }, [items]);
+
+  // const renderItemCardComponent = ({ item, index }) => {
+  //   return (
+  //     <ItemCardComponent
+  //       title={item.item_title}
+  //       price={item.item_price}
+  //       imageUrl={item.item_image}
+  //       key={index}
+  //       navigation={navigation}
+  //     />
+  //   );
+  // };
 
   return (
     <SafeAreaView>
@@ -52,7 +94,7 @@ function HomeScreen({ navigation }) {
             onfocus={handleSearchFieldFocus}
             handleOpenModal={handleSearchFieldFocus}
           />
-          <Text style={styles.headerText}>Choose your market</Text>
+          <Text style={styles.headerText}>Choose your platform</Text>
           <View style={styles.selectionView}>
             <CustomButtonComponent text={"Jumia"} isActive={true} />
 
@@ -61,19 +103,18 @@ function HomeScreen({ navigation }) {
 
           {/*Items on FlashSale*/}
           <View style={styles.flashSaleItemsContainer}>
-            <Text style={[styles.headerText, styles.flashSaleHeader]}>
-              Items on FlashSale
-            </Text>
-            <ScrollView
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-            >
-              <ItemCardComponent itemstyle={styles.flashSalefavoriteText} />
-              <ItemCardComponent itemstyle={styles.flashSalefavoriteText} />
-              <ItemCardComponent itemstyle={styles.flashSalefavoriteText} />
-              <ItemCardComponent itemstyle={styles.flashSalefavoriteText} />
-              <ItemCardComponent itemstyle={styles.flashSalefavoriteText} />
-            </ScrollView>
+            <View style={styles.flashSaleHeaderContainer}>
+              <Text style={[styles.headerText, styles.flashSaleHeader]}>
+                Items on FlashSale
+              </Text>
+              <TouchableOpacity
+                onPress={() => handleLoadMore("flashItems")}
+                navigation={navigation}
+              >
+                <Text>View more</Text>
+              </TouchableOpacity>
+            </View>
+            <CarouselComponent navigation={navigation} />
           </View>
 
           {/*Shop By Category*/}
@@ -81,7 +122,9 @@ function HomeScreen({ navigation }) {
           <View style={styles.categoriesBody}>
             <TouchableOpacity>
               <View style={styles.choicepicker}>
-                <Text style={styles.textchoice}>Television</Text>
+                <View style={styles.textChoiceContainer}>
+                  <Text style={styles.textchoice}>Television</Text>
+                </View>
                 <MaterialIcons
                   name="keyboard-arrow-down"
                   size={24}
@@ -89,14 +132,26 @@ function HomeScreen({ navigation }) {
                 />
               </View>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.more}
+              onPress={() => handleLoadMore("allItems")}
+            >
+              <Text>View more</Text>
+            </TouchableOpacity>
             <ScrollView
               showsHorizontalScrollIndicator={false}
               horizontal={true}
             >
-              <ItemCardComponent />
-              <ItemCardComponent />
-              <ItemCardComponent />
-              <ItemCardComponent />
+              {items.map((item, index) => (
+                <ItemCardComponent
+                  title={item.item_title}
+                  price={item.item_price}
+                  imageUrl={item.item_image}
+                  key={index}
+                  item={item}
+                  navigation={navigation}
+                />
+              ))}
             </ScrollView>
           </View>
         </View>
@@ -135,22 +190,27 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   categoriesBody: {
-    backgroundColor: "#F0E8E8",
-    padding: 16,
+    //backgroundColor: "#EBE3F5",
+    //padding: 16,
     borderRadius: 12,
   },
+  flashSaleHeaderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   flashSaleItemsContainer: {
-    marginTop: 24,
+    marginTop: 8,
     paddingBottom: 16,
     paddingHorizontal: 8,
     borderRadius: 12,
-    backgroundColor: "#BF3D3D",
+    // backgroundColor: "#6200ee",
   },
   flashSalefavoriteText: {
     color: "#ffffff",
   },
   flashSaleHeader: {
-    color: "white",
+    color: "#213555",
   },
   header: {
     flex: 1,
@@ -161,13 +221,14 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 18,
     fontWeight: "600",
-    marginVertical: 18,
+    marginVertical: 12,
+    color: "#213555",
   },
   selectionView: {
-    backgroundColor: "#F0E8E8",
+    //backgroundColor: "#EBE3F5",
     flexDirection: "row",
     justifyContent: "space-evenly",
-    height: 90,
+    height: 50,
     alignItems: "center",
     borderRadius: 12,
   },
@@ -185,7 +246,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     height: "100%",
-    width: "80%", // Adjust this value as per your requirement
+    width: "80%",
     padding: 20,
   },
   jumiaBtnText: {
@@ -194,9 +255,18 @@ const styles = StyleSheet.create({
   kilimallBtnText: {
     textAlign: "center",
   },
+  more: {
+    position: "absolute",
+    right: 12,
+  },
   choicepicker: {
     flexDirection: "row",
     gap: 12,
+  },
+  textChoiceContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   textchoice: {
     fontWeight: "500",

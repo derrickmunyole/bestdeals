@@ -1,28 +1,42 @@
 import React from "react";
 import { Image, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
-function ItemCardComponent({ itemstyle }) {
+function ItemCardComponent({
+  itemstyle,
+  title,
+  price,
+  imageUrl,
+  navigation,
+  item,
+  ...otherProps
+}) {
   return (
     <>
-      <View style={styles.componentContainer}>
+      <TouchableOpacity
+        style={styles.componentContainer}
+        onPress={() => navigation.navigate("Details", { item: item })}
+      >
         <View style={styles.cardContainer}>
           <Image
             resizeMode="contain"
             style={styles.image}
-            source={{ uri: "https://picsum.photos/700" }}
+            source={{
+              uri: imageUrl,
+            }}
           />
           <View style={styles.infoText}>
-            <Text style={styles.itemTitle}>Title: Painting</Text>
-            <Text style={styles.itemTitle}>Price: Kes 800</Text>
-            <Text style={styles.itemTitle}>Save Kes 24</Text>
+            <Text style={styles.itemTitle} numberOfLines={1}>
+              {title}
+            </Text>
+            <Text style={styles.itemPrice}>{price}</Text>
           </View>
         </View>
         <TouchableOpacity>
           <View style={styles.addfavorite}>
-            <Text style={itemstyle}>Add favorite</Text>
+            <Text style={itemstyle}>Save item</Text>
           </View>
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     </>
   );
 }
@@ -36,12 +50,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   cardContainer: {
-    alignItems: "center",
-    width: 120,
-    height: 200,
-    backgroundColor: "#FFC1C1",
+    alignItems: "flex-start",
+    width: 180,
+    height: 270,
+    backgroundColor: "#BCCEF8",
+    borderBottomRightRadius: 16,
+    borderBottomLeftRadius: 16,
     paddingBottom: 8,
-    borderRadius: 12,
     marginRight: 8,
   },
   heartIcon: {
@@ -49,11 +64,17 @@ const styles = StyleSheet.create({
     height: 26,
   },
   image: {
-    width: 120,
-    height: 120,
+    width: 180,
+    height: 200,
+    marginTop: -12,
+  },
+  itemPrice: {
+    color: "#666666",
+    paddingLeft: 6,
   },
   itemTitle: {
     fontWeight: "500",
+    paddingLeft: 6,
   },
   infoText: {
     marginTop: 8,

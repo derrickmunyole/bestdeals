@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 
 function CustomButtonComponent({ isActive, text, onPress }) {
   const style = isActive ? styles.active : styles.outline;
-  const color = isActive ? "white" : "green";
+  const color = isActive ? "white" : "#6200ee";
   return (
     <ButtonComponent
       style={style}
@@ -19,14 +19,14 @@ export default CustomButtonComponent;
 
 const styles = StyleSheet.create({
   active: {
-    backgroundColor: "green",
+    backgroundColor: "#6200ee",
     width: 100,
     height: 40,
   },
   outline: {
     backgroundColor: "F0E8E8",
     borderWidth: 1,
-    borderColor: "green",
+    borderColor: "#6200ee",
     width: 100,
     height: 40,
   },
