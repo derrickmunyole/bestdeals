@@ -7,50 +7,54 @@ import {
   ImageBackground,
 } from "react-native";
 import ButtonComponent from "../components/ButtonComponent";
+import { StatusBar } from "expo-status-bar";
 
 function Register(props) {
   return (
-    <ImageBackground
-      style={styles.screenContainer}
-      source={require("../assets/background.jpg")}
-    >
-      <View style={styles.overlay}>
-        <View style={[styles.registrationForm]}>
-          {/* <ShoppersSvg width={100} height={100} /> */}
-          <TextInput
-            label={"First Name"}
-            style={styles.inputFields}
-            placeholder="First Name"
-          />
-          <TextInput
-            label={"Last Name"}
-            style={styles.inputFields}
-            placeholder="Last Name"
-          />
-          <TextInput
-            label={"Email"}
-            style={styles.inputFields}
-            placeholder="Email"
-          />
-          <TextInput
-            label={"Password"}
-            style={styles.inputFields}
-            placeholder="Password"
-          />
-          <TextInput
-            label={"Confirm Password"}
-            style={styles.inputFields}
-            placeholder="Confirm Password"
-          />
-          <ButtonComponent
-            text={"Register"}
-            style={styles.registerBtn}
-            placeholder="First Name"
-          />
-          <Text style={styles.text}>Have an account? Log in</Text>
+    <>
+      <StatusBar hidden={true} />
+      <ImageBackground
+        style={styles.screenContainer}
+        source={require("../assets/background.jpg")}
+      >
+        <View style={styles.overlay}>
+          <View style={[styles.registrationForm]}>
+            {/* <ShoppersSvg width={100} height={100} /> */}
+            <TextInput
+              label={"First Name"}
+              style={styles.inputFields}
+              placeholder="First Name"
+            />
+            <TextInput
+              label={"Last Name"}
+              style={styles.inputFields}
+              placeholder="Last Name"
+            />
+            <TextInput
+              label={"Email"}
+              style={styles.inputFields}
+              placeholder="Email"
+            />
+            <TextInput
+              label={"Password"}
+              style={styles.inputFields}
+              placeholder="Password"
+            />
+            <TextInput
+              label={"Confirm Password"}
+              style={styles.inputFields}
+              placeholder="Confirm Password"
+            />
+            <ButtonComponent
+              text={"Register"}
+              style={styles.registerBtn}
+              placeholder="First Name"
+            />
+            <Text style={styles.text}>Have an account? Log in</Text>
+          </View>
         </View>
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+    </>
   );
 }
 
@@ -63,7 +67,7 @@ const styles = StyleSheet.create({
   },
   registrationForm: {
     flex: 1,
-    marginTop: 60,
+    marginTop: 100,
     paddingHorizontal: 16,
     justifyContent: "center",
   },

@@ -11,7 +11,7 @@ import { create } from "apisauce";
  */
 
 const apiClient = create({
-  baseURL: "https://bd0b-105-162-40-96.ngrok-free.app",
+  baseURL: "https://f891-105-162-4-124.ngrok-free.app",
 });
 
 export default apiClient;

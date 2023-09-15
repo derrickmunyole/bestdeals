@@ -60,6 +60,15 @@ const CarouselComponent = ({ navigation }) => {
   };
 
   const renderIndicators = () => {
+    /**
+     * Renders indicators for the carousel.
+     *
+     * Limits the number of indicators to 5.
+     * Uses memoization to avoid re-creating the indicators array on every render.
+     *
+     * @returns {JSX.Element} - View containing the indicator components
+     */
+
     const maxIndicators = 5;
     const flashItems = flashitems;
     const activeindex = activeIndex;

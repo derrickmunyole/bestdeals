@@ -7,34 +7,38 @@ import {
   ImageBackground,
 } from "react-native";
 import ButtonComponent from "../components/ButtonComponent";
+import { StatusBar } from "expo-status-bar";
 
 function Login(props) {
   return (
-    <ImageBackground
-      style={styles.screenContainer}
-      source={require("../assets/background.jpg")}
-    >
-      <View style={styles.overlay}>
-        <View style={[styles.registrationForm]}>
-          {/* <ShoppersSvg width={100} height={100} /> */}
-          <TextInput
-            label={"Email"}
-            style={styles.inputFields}
-            placeholder="Email"
-          />
-          <TextInput
-            label={"Password"}
-            style={styles.inputFields}
-            placeholder="Password"
-          />
-          <ButtonComponent text={"Login"} style={styles.registerBtn} />
-          <View style={styles.ctatextview}>
-            <Text style={styles.ctatext}>Create an account</Text>
-            <Text style={styles.text}> to get started</Text>
+    <>
+      <StatusBar hidden={true} />
+      <ImageBackground
+        style={styles.screenContainer}
+        source={require("../assets/background.jpg")}
+      >
+        <View style={styles.overlay}>
+          <View style={[styles.registrationForm]}>
+            {/* <ShoppersSvg width={100} height={100} /> */}
+            <TextInput
+              label={"Email"}
+              style={styles.inputFields}
+              placeholder="Email"
+            />
+            <TextInput
+              label={"Password"}
+              style={styles.inputFields}
+              placeholder="Password"
+            />
+            <ButtonComponent text={"Login"} style={styles.registerBtn} />
+            <View style={styles.ctatextview}>
+              <Text style={styles.ctatext}>Create an account</Text>
+              <Text style={styles.text}> to get started</Text>
+            </View>
           </View>
         </View>
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+    </>
   );
 }
 

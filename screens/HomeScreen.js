@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
+  FlatList,
   Modal,
   Pressable,
   ScrollView,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
+  ActivityIndicator,
 } from "react-native";
 import { StyleSheet, Text } from "react-native";
 import ItemCardComponent from "../components/ItemCardComponent";
@@ -20,6 +23,23 @@ import itemsApi from "../api/items";
 function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [items, setItems] = useState([]);
+  const [categoryItems, setCategoryItems] = useState([]);
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [newCategory, setNewCategory] = useState("Television");
+  const [isFirstLoad, SetIsFirstLoad] = useState(true);
+  const [isFlashItemsLoading, setIsFlashItemsLoading] = useState(true);
+  const [isItemsLoading, setIsItemsLoading] = useState(false);
+
+  const categories = [
+    "television",
+    "Phones & Accessories",
+    "Speaker",
+    "Microwave",
+    "Fridge",
+    "Electric cooker",
+    "Laptop & Accessories",
+    "Fashion",
+  ];
 
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -31,8 +51,35 @@ function HomeScreen({ navigation }) {
     setIsLoadingMore(false);
   };
 
+  const handleCategoryPress = (category) => {
+    /**
+     * Handles a category being pressed in the category selection modal.
+     *
+     * @param {string} category - The name of the category that was pressed
+     * This will update the app state with the new selected category.
+     *
+     * Calls the toggleFirstLoad function to toggle the first load state.
+     * Calls the handleCloseCategoryModal function to close the modal.
+     */
+    toggleFirstLoad();
+    setNewCategory(category);
+    handleCloseCategoryModal();
+  };
+
+  const handleTextChoicePress = () => {
+    setCategoryModalVisible(!categoryModalVisible);
+  };
+
+  const handleCloseCategoryModal = () => {
+    setCategoryModalVisible(false);
+  };
+
   const handleSearchFieldFocus = () => {
     setModalVisible(true);
+  };
+
+  const toggleFirstLoad = () => {
+    SetIsFirstLoad(false);
   };
 
   const handleCloseModal = () => {
@@ -43,33 +90,35 @@ function HomeScreen({ navigation }) {
     loadItems();
   }, []);
 
+  useEffect(() => {
+    loadCategoryItems();
+  }, [newCategory]);
+
   const loadItems = async () => {
+    setIsFlashItemsLoading(true);
     const response = await itemsApi.getAllItems();
     if (response.length > 0) {
       setItems(response);
     } else {
       setItems([]);
     }
+    setIsFlashItemsLoading(false);
   };
 
-  // useEffect(() => {
-  //   console.log(items);
-  // }, [items]);
-
-  // const renderItemCardComponent = ({ item, index }) => {
-  //   return (
-  //     <ItemCardComponent
-  //       title={item.item_title}
-  //       price={item.item_price}
-  //       imageUrl={item.item_image}
-  //       key={index}
-  //       navigation={navigation}
-  //     />
-  //   );
-  // };
+  const loadCategoryItems = async () => {
+    setIsItemsLoading(true);
+    const response = await itemsApi.getCategoryItems(newCategory);
+    if (response.length > 0) {
+      setCategoryItems(response);
+    } else {
+      setCategoryItems([]);
+    }
+    setIsItemsLoading(false);
+  };
 
   return (
-    <SafeAreaView>
+    <>
+      <SafeAreaView />
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.mainscrollview}
@@ -114,16 +163,17 @@ function HomeScreen({ navigation }) {
                 <Text>View more</Text>
               </TouchableOpacity>
             </View>
+            <ActivityIndicator animating={isFlashItemsLoading} size={"large"} />
             <CarouselComponent navigation={navigation} />
           </View>
 
           {/*Shop By Category*/}
           <Text style={styles.headerText}>View by category</Text>
           <View style={styles.categoriesBody}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => handleTextChoicePress()}>
               <View style={styles.choicepicker}>
                 <View style={styles.textChoiceContainer}>
-                  <Text style={styles.textchoice}>Television</Text>
+                  <Text style={styles.textchoice}>{newCategory}</Text>
                 </View>
                 <MaterialIcons
                   name="keyboard-arrow-down"
@@ -138,11 +188,12 @@ function HomeScreen({ navigation }) {
             >
               <Text>View more</Text>
             </TouchableOpacity>
-            <ScrollView
-              showsHorizontalScrollIndicator={false}
+            <ActivityIndicator animating={isItemsLoading} size={"large"} />
+            <FlatList
               horizontal={true}
-            >
-              {items.map((item, index) => (
+              data={isFirstLoad ? items : categoryItems}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item, index }) => (
                 <ItemCardComponent
                   title={item.item_title}
                   price={item.item_price}
@@ -151,15 +202,42 @@ function HomeScreen({ navigation }) {
                   item={item}
                   navigation={navigation}
                 />
-              ))}
-            </ScrollView>
+              )}
+            />
           </View>
         </View>
       </ScrollView>
       <Modal visible={modalVisible} animationType="slide">
         <SearchModal onCloseModal={handleCloseModal} />
       </Modal>
-    </SafeAreaView>
+      <Modal
+        visible={categoryModalVisible}
+        animationType="slide"
+        transparent={true}
+        on
+      >
+        <TouchableWithoutFeedback onPress={handleCloseCategoryModal}>
+          <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.0)" }}>
+            <View style={styles.centeredView}>
+              <Text style={styles.modalTitle}>
+                <Text>Categories</Text>
+              </Text>
+              <View style={styles.modalBody}>
+                {categories.map((category, index) => (
+                  <Pressable
+                    key={index}
+                    style={styles.modalOption}
+                    onPress={() => handleCategoryPress(category)}
+                  >
+                    <Text>{category}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </>
   );
 }
 
@@ -194,6 +272,16 @@ const styles = StyleSheet.create({
     //padding: 16,
     borderRadius: 12,
   },
+  centeredView: {
+    position: "absolute",
+    bottom: 210,
+    left: 16,
+    width: 200,
+    height: 300,
+    backgroundColor: "white",
+    elevation: 2,
+    borderRadius: 12,
+  },
   flashSaleHeaderContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -223,6 +311,15 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginVertical: 12,
     color: "#213555",
+  },
+  modalTitle: {
+    textAlign: "center",
+    marginTop: 12,
+  },
+  modalBody: {
+    marginTop: 16,
+    paddingLeft: 16,
+    gap: 12,
   },
   selectionView: {
     //backgroundColor: "#EBE3F5",
