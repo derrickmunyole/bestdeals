@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -13,8 +13,29 @@ import { Button, Divider } from "react-native-paper";
 import ItemCardComponent from "../components/ItemCardComponent";
 import ReviewComponent from "../components/ReviewComponent";
 import ButtonComponent from "../components/ButtonComponent";
+import AuthContext from "../auth/AuthContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CommonActions } from "@react-navigation/native";
 
 function ProfileScreen(props) {
+  const { token } = useContext(AuthContext);
+
+  const logOutUser = async () => {
+    try {
+      await AsyncStorage.removeItem("userToken");
+      props.navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [
+            { name: "AuthStack" }, // name of your Auth stack
+          ],
+        })
+      );
+    } catch (error) {
+      console.log("Failed to log out", error);
+    }
+  };
+
   return (
     <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -72,7 +93,9 @@ function ProfileScreen(props) {
             <Text>Enable socials</Text>
             <Switch style={styles.switchelement} />
           </View>
-          <ButtonComponent text={"Logout"} style={styles.logoutButton} />
+          <TouchableOpacity onPress={() => logOutUser()}>
+            <ButtonComponent text={"Logout"} style={styles.logoutButton} />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

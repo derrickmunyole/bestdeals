@@ -1,43 +1,71 @@
-import React from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  ImageBackground,
-} from "react-native";
+import React, { useContext } from "react";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { Formik } from "formik";
+import { SafeAreaView } from "react-native-safe-area-context";
 import ButtonComponent from "../components/ButtonComponent";
-import { StatusBar } from "expo-status-bar";
+import TextInputComponent from "../components/TextInputComponent";
+import * as Yup from "yup";
+import ErrorMessage from "../components/ErrorMessage";
+import { loginUser } from "../api/auth";
+import AuthContext from "../auth/AuthContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-function Login(props) {
+let validationSchema = Yup.object().shape({
+  email: Yup.string().required().email().label("Email"),
+  password: Yup.string().required().min(6).label("Password"),
+});
+
+function Login({ navigation }) {
+  const { setToken } = useContext(AuthContext);
   return (
     <>
-      <StatusBar hidden={true} />
-      <ImageBackground
-        style={styles.screenContainer}
-        source={require("../assets/background.jpg")}
-      >
-        <View style={styles.overlay}>
-          <View style={[styles.registrationForm]}>
-            {/* <ShoppersSvg width={100} height={100} /> */}
-            <TextInput
-              label={"Email"}
-              style={styles.inputFields}
-              placeholder="Email"
-            />
-            <TextInput
-              label={"Password"}
-              style={styles.inputFields}
-              placeholder="Password"
-            />
-            <ButtonComponent text={"Login"} style={styles.registerBtn} />
-            <View style={styles.ctatextview}>
-              <Text style={styles.ctatext}>Create an account</Text>
-              <Text style={styles.text}> to get started</Text>
-            </View>
-          </View>
+      <SafeAreaView />
+      <View style={styles.screenContainer}>
+        <View style={styles.loginform}>
+          <Formik
+            initialValues={{ email: "", password: "" }}
+            validationSchema={validationSchema}
+            onSubmit={async (values) => {
+              const response = await loginUser(values);
+              const token = response?.data?.token;
+              setToken(token);
+              await AsyncStorage.setItem("userToken", token);
+            }}
+          >
+            {({ handleChange, handleSubmit, errors, touched }) => (
+              <>
+                <TextInputComponent
+                  placeholder={"Email"}
+                  keyboardType={"email-address"}
+                  autocapitalize="none"
+                  styles={styles.inputFields}
+                  onChangeText={handleChange("email")}
+                />
+                <ErrorMessage error={errors.email} visible={touched} />
+                <TextInputComponent
+                  placeholder={"Password"}
+                  keyboardType={"default"}
+                  securetextentry
+                  styles={styles.inputFields}
+                  onChangeText={handleChange("password")}
+                />
+                <ErrorMessage error={errors.password} visible={touched} />
+                <TouchableOpacity onPress={handleSubmit}>
+                  <ButtonComponent style={styles.loginBtn} text={"Login"} />
+                </TouchableOpacity>
+                <View style={styles.toRegister}>
+                  <Text>Don't have an account? </Text>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("Register")}
+                  >
+                    <Text style={styles.toRegisterText}>Create account</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </Formik>
         </View>
-      </ImageBackground>
+      </View>
     </>
   );
 }
@@ -48,50 +76,35 @@ const styles = StyleSheet.create({
   screenContainer: {
     backgroundColor: "#F9F3F3",
     flex: 1,
+    paddingHorizontal: 16,
   },
-  registrationForm: {
+  loginform: {
     flex: 1,
-    marginTop: 60,
+    marginTop: 100,
     paddingHorizontal: 16,
     justifyContent: "center",
   },
-  keyboardavoidingview: {
-    flex: 1,
-  },
-  registrationHeader: {
-    fontSize: 22,
-    marginBottom: 16,
-  },
   inputFields: {
-    marginBottom: 12,
-    backgroundColor: "#FAF8F1",
-    height: 60,
+    marginBottom: 8,
+    backgroundColor: "#F9F3F3",
+    height: 50,
     borderRadius: 18,
     borderWidth: 2,
     borderColor: "#949CDF",
     paddingHorizontal: 20,
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  registerBtn: {
+  loginBtn: {
     marginTop: 24,
     paddingVertical: 6,
-    // width: 240,
-    // alignSelf: "center",
   },
-  text: {
-    color: "#fff",
-    marginTop: 16,
-    fontSize: 16,
-  },
-  ctatext: {
-    marginTop: 17,
-    color: "red",
-  },
-  ctatextview: {
+  toRegister: {
     flexDirection: "row",
-    justifyContent: "center",
+    marginTop: 16,
+    alignSelf: "center",
+  },
+  toRegisterText: {
+    textDecorationLine: "underline",
+    color: "#793FDF",
+    fontWeight: "bold",
   },
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   FlatList,
   Modal,
@@ -19,6 +19,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CustomButtonComponent from "../components/CustomButtonComponent";
 import CarouselComponent from "../components/CarouselComponent";
 import itemsApi from "../api/items";
+import AuthContext from "../auth/AuthContext";
+import jwtDecode from "jwt-decode";
 
 function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
@@ -29,6 +31,15 @@ function HomeScreen({ navigation }) {
   const [isFirstLoad, SetIsFirstLoad] = useState(true);
   const [isFlashItemsLoading, setIsFlashItemsLoading] = useState(true);
   const [isItemsLoading, setIsItemsLoading] = useState(false);
+
+  const { token } = useContext(AuthContext);
+  let first_name;
+  try {
+    const decodedToken = jwtDecode(token);
+    first_name = decodedToken?.first_name;
+  } catch (error) {
+    console.log("Decoded failed", error);
+  }
 
   const categories = [
     "television",
@@ -125,7 +136,7 @@ function HomeScreen({ navigation }) {
       >
         <View style={styles.main}>
           <View style={styles.header}>
-            <Text style={styles.welcomeText}>Hi, Derrick</Text>
+            <Text style={styles.welcomeText}>Hi, {first_name}</Text>
             <TouchableOpacity>
               <AntDesign
                 name="heart"
