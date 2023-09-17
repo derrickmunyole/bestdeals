@@ -8,14 +8,13 @@ import {
   TextInput,
   View,
 } from "react-native";
-import TextInputComponent from "./TextInputComponent";
 
 const SearchModal = ({ onCloseModal }) => {
   const fetchedSearches = ["Search 1", "Search 2", "Search 3"];
 
   return (
     <View style={styles.modalContainer}>
-      <TextInputComponent />
+      <TextInput style={styles.textInput} />
       <Text style={styles.title}>List of Searches</Text>
       <FlatList
         data={fetchedSearches}
@@ -45,5 +44,10 @@ const styles = StyleSheet.create({
   searchItem: {
     fontSize: 16,
     marginBottom: 10,
+  },
+  textInput: {
+    borderBottomWidth: 1,
+    width: "100%",
+    borderBottomColor: "#BCCEF8",
   },
 });

@@ -1,39 +1,53 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import {
   StyleSheet,
   Text,
   View,
-  ScrollView,
   Image,
   FlatList,
-  TouchableOpacity,
   TouchableHighlight,
 } from "react-native";
-import ItemCardComponent from "../components/ItemCardComponent";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
+import favoritesApi from "../api/favorites";
+import AppActivityIndicator from "../components/ActivityIndicator";
+import AuthContext from "../auth/AuthContext";
+import jwtDecode from "jwt-decode";
 
 const SavedItemsScreen = () => {
+  const [favorites, setFavorites] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
   // Assuming you have an array of items retrieved from the database
-  let items = [
-    "John",
-    "Jane",
-    "James",
-    "Jill",
-    "Jack",
-    "Judy",
-    "Jerry",
-    "Jasmine",
-    "Jacob",
-    "Julia",
-    "Jaden",
-    "Jenna",
-    "Jesse",
-    "Jodie",
-    "Jeff",
-    "Jenny",
-  ];
+
+  //Get user_id from token, which is needed to retrieve favorites for that user
+  const { token } = useContext(AuthContext);
+  let user_id;
+  try {
+    const decodedToken = jwtDecode(token);
+    user_id = decodedToken?.user_id;
+    // console.log(typeof user_id);
+  } catch (error) {
+    console.log("Decoded failed", error);
+  }
+
+  useEffect(() => {
+    getFavoritesData();
+  }, []);
+
+  const getFavoritesData = async () => {
+    setLoading(true);
+    const response = await favoritesApi.getFavorites(user_id);
+    console.log(response.data);
+    if (!response.ok) throw new Error(response.problem);
+    if (response.data.items.length > 0) {
+      setFavorites(response.data.items);
+      setLoading(false);
+    } else {
+      setFavorites([]);
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -44,26 +58,28 @@ const SavedItemsScreen = () => {
           <Text style={styles.savedItemsScreenTitle}>Saved Items</Text>
         </View>
         {/* List of saved items */}
+        <AppActivityIndicator visible={loading} />
         <FlatList
-          data={items}
+          data={favorites}
           style={styles.flatList}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
+            // console.log("From renderItem:", item);
             return (
               <TouchableHighlight style={styles.savedItemContainer}>
                 <>
                   <Image
-                    source={require("../assets/smartphone.jpeg")}
+                    source={{ uri: item.item_image }}
                     resizeMode="contain"
                     style={styles.savedItemImage}
                   />
                   <View style={styles.savedItemDetails}>
                     <Text numberOfLines={1} style={styles.savedItemTitle}>
-                      Samsung Galaxy S23
+                      {item.item_title}
                     </Text>
-                    <Text>Kes 72000</Text>
+                    <Text>{item.item_price}</Text>
                     <View>
-                      <Text>Jumia</Text>
+                      <Text>{item.item_shop}</Text>
                     </View>
                     <View style={styles.removeItemButton}>
                       <FontAwesome5
@@ -126,7 +142,7 @@ const styles = StyleSheet.create({
   savedItemDetails: {
     width: 200,
     justifyContent: "center",
-    marginLeft: -4,
+    marginLeft: -20,
   },
   sav: {
     paddingBottom: 56,

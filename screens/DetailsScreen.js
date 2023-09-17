@@ -7,10 +7,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Button, IconButton } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import NotFoundSvg from "../assets/broken_rafiki.svg";
 import StoreSvg from "../assets/store.svg";
+import jwtDecode from "jwt-decode";
+import { useContext } from "react";
 
 import {
   AntDesign,
@@ -18,8 +18,32 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import ButtonComponent from "../components/ButtonComponent";
+import favoritesApi from "../api/favorites";
+import AuthContext from "../auth/AuthContext";
 
-function DetailsScreen({ route }) {
+function DetailsScreen({ route, navigation }) {
+  const [error, setError] = React.useState(false);
+
+  const { token } = useContext(AuthContext);
+  let user_id;
+  try {
+    const decodedToken = jwtDecode(token);
+    user_id = decodedToken?.user_id;
+  } catch (error) {
+    console.log("Decoded failed", error);
+  }
+
+  const addToFavorite = async (favoriteItem) => {
+    try {
+      const response = await favoritesApi.addFavorite(favoriteItem);
+
+      if (!response.ok) return setError(true);
+      setError(false);
+      console.log("Item has been added to favorite");
+
+      return;
+    } catch (error) {}
+  };
   return (
     <SafeAreaView>
       {/*Header section */}
@@ -62,29 +86,41 @@ function DetailsScreen({ route }) {
               <View style={styles.priceviews}>
                 <MaterialCommunityIcons
                   name="cash-multiple"
-                  size={24}
+                  size={36}
                   color="black"
                 />
                 <Text style={styles.PriceText}>
                   {route.params.item.item_price}
                 </Text>
               </View>
-              <TouchableOpacity style={styles.heartItem}>
-                <AntDesign
-                  name="heart"
-                  color="#BF3D3D"
-                  size={24}
-                  onPress={() => console.log("Adding item to favorite")}
-                />
+              <TouchableOpacity
+                style={styles.heartItem}
+                onPress={() =>
+                  addToFavorite({
+                    user_id: user_id,
+                    item_id: route.params.item._id,
+                    item_title: route.params.item.item_title,
+                    item_image: route.params.item.item_image,
+                    item_price: route.params.item.item_price,
+                    item_shop: route.params.item.shop,
+                  })
+                }
+              >
+                <AntDesign name="heart" color="#BF3D3D" size={28} />
               </TouchableOpacity>
             </View>
             <View style={styles.storehighlight}>
-              <StoreSvg width={28} height={28} />
-              <Text>Kilimall</Text>
+              <StoreSvg width={36} height={36} />
+              <Text>{route.params.item.shop}</Text>
             </View>
           </View>
         </View>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() =>
+            navigation.navigate("WebView", { url: route.params.item.item_page })
+          }
+        >
           <ButtonComponent text="Visit page" style={styles.visitpagebtn} />
         </TouchableOpacity>
       </ScrollView>
@@ -135,7 +171,7 @@ const styles = StyleSheet.create({
     height: 300,
   },
   itemTitle: {
-    fontWeight: "500",
+    fontWeight: "400",
     marginTop: 8,
   },
   iconstyleLeft: {

@@ -8,6 +8,8 @@ import SavedItemsScreen from "../screens/SavedItemsScreen";
 import DetailsScreen from "../screens/DetailsScreen";
 import AllItems from "../screens/AllItems";
 import AuthContext from "../auth/AuthContext";
+import FavoritesProvider from "../favorites/FavoritesProvider";
+import WebViewScreen from "../screens/WebViewScreen";
 
 const Stack = createNativeStackNavigator();
 const AuthStack = createNativeStackNavigator();
@@ -22,6 +24,7 @@ function AuthenticatedStack() {
       <Stack.Screen name="Wishlist" component={SavedItemsScreen} />
       <Stack.Screen name="All" component={AllItems} />
       <Stack.Screen name="Details" component={DetailsScreen} />
+      <Stack.Screen name="WebView" component={WebViewScreen} />
     </Stack.Navigator>
   );
 }
@@ -42,7 +45,13 @@ function Navigation({ isAuthenticated }) {
   const { token } = useContext(AuthContext);
   return (
     <NavigationContainer>
-      {token ? <AuthenticatedStack /> : <UnauthenticatedStack />}
+      {token ? (
+        <FavoritesProvider>
+          <AuthenticatedStack />
+        </FavoritesProvider>
+      ) : (
+        <UnauthenticatedStack />
+      )}
     </NavigationContainer>
   );
 }

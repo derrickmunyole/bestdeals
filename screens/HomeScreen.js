@@ -21,6 +21,7 @@ import CarouselComponent from "../components/CarouselComponent";
 import itemsApi from "../api/items";
 import AuthContext from "../auth/AuthContext";
 import jwtDecode from "jwt-decode";
+import { Keyboard } from "react-native";
 
 function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
@@ -133,6 +134,7 @@ function HomeScreen({ navigation }) {
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.mainscrollview}
+        keyboardShouldPersistTaps="always"
       >
         <View style={styles.main}>
           <View style={styles.header}>
@@ -151,8 +153,9 @@ function HomeScreen({ navigation }) {
             <Text style={styles.bodyTextBrand}>BestDeals</Text>
           </View>
           <ItemSearchComponent
-            onfocus={handleSearchFieldFocus}
             handleOpenModal={handleSearchFieldFocus}
+            onBlur={() => Keyboard.dismiss()}
+            textContentType={"none"}
           />
           <Text style={styles.headerText}>Choose your platform</Text>
           <View style={styles.selectionView}>
