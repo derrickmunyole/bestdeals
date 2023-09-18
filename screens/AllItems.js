@@ -11,27 +11,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { IconButton } from "react-native-paper";
 import flashitemsApi from "../api/flashitems";
 import itemsApi from "../api/items";
+import AppActivityIndicator from "../components/ActivityIndicator";
 
 const AllItems = ({ route, navigation }) => {
   // Assuming you have an array of items retrieved from the database
-  let items = [
-    "John",
-    "Jane",
-    "James",
-    "Jill",
-    "Jack",
-    "Judy",
-    "Jerry",
-    "Jasmine",
-    "Jacob",
-    "Julia",
-    "Jaden",
-    "Jenna",
-    "Jesse",
-    "Jodie",
-    "Jeff",
-    "Jenny",
-  ];
+  const [loading, setLoading] = useState(true);
 
   const [flashitems, setFlashItems] = useState([]);
   const [allitems, setAllItems] = useState([]);
@@ -43,10 +27,13 @@ const AllItems = ({ route, navigation }) => {
   const loadItems = async () => {
     try {
       let response;
+      setLoading(true);
       if (route.params.itemType === "flashItems") {
         response = await flashitemsApi.getFlashItems();
+        setLoading(false);
       } else if (route.params.itemType === "allItems") {
         response = await itemsApi.getAllItems();
+        setLoading(false);
       }
       console.log("Response from getItems:", response);
       if (response.length > 0) {
@@ -68,6 +55,7 @@ const AllItems = ({ route, navigation }) => {
           <IconButton icon="arrow-left" size={30} />
           <Text style={styles.savedItemsScreenTitle}>All Items</Text>
         </View>
+        <AppActivityIndicator visible={loading} />
         <ScrollView>
           <View style={styles.container}>
             {flashitems.map((item, index) => (

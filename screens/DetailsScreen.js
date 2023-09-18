@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Image,
   ScrollView,
@@ -17,12 +17,21 @@ import {
   Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import ButtonComponent from "../components/ButtonComponent";
 import favoritesApi from "../api/favorites";
 import AuthContext from "../auth/AuthContext";
 
-function DetailsScreen({ route, navigation }) {
+function DetailsScreen({ route }) {
   const [error, setError] = React.useState(false);
+
+  const navigation = useNavigation();
+
+  const { screenToGoBack } = route.params;
+
+  const navigateBack = () => {
+    navigation.navigate(screenToGoBack);
+  };
 
   const { token } = useContext(AuthContext);
   let user_id;
@@ -54,14 +63,14 @@ function DetailsScreen({ route, navigation }) {
       <ScrollView>
         {/* Body section */}
         <View style={styles.bodyContainer}>
-          <View style={styles.iconstyleLeft}>
+          <TouchableOpacity style={styles.iconstyleLeft} onPress={navigateBack}>
             <AntDesign
               name="left"
               size={26}
               color="black"
               style={styles.arrowBack}
             />
-          </View>
+          </TouchableOpacity>
           <View style={styles.iconstyleRight}>
             <Ionicons
               name="share-social-sharp"

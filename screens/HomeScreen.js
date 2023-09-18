@@ -222,13 +222,15 @@ function HomeScreen({ navigation }) {
         </View>
       </ScrollView>
       <Modal visible={modalVisible} animationType="slide">
-        <SearchModal onCloseModal={handleCloseModal} />
+        <SearchModal
+          onCloseModal={handleCloseModal}
+          handleOpenModal={() => navigation.navigate("SearchModal")}
+        />
       </Modal>
       <Modal
         visible={categoryModalVisible}
         animationType="slide"
         transparent={true}
-        on
       >
         <TouchableWithoutFeedback onPress={handleCloseCategoryModal}>
           <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.0)" }}>

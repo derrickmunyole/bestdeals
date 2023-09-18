@@ -10,6 +10,7 @@ import AllItems from "../screens/AllItems";
 import AuthContext from "../auth/AuthContext";
 import FavoritesProvider from "../favorites/FavoritesProvider";
 import WebViewScreen from "../screens/WebViewScreen";
+import SearchModal from "../components/SearchModal";
 
 const Stack = createNativeStackNavigator();
 const AuthStack = createNativeStackNavigator();
@@ -20,11 +21,16 @@ function AuthenticatedStack() {
       screenOptions={{ headerShown: false }}
       initialRouteName="Dashboard"
     >
-      <Stack.Screen name="Dashboard" component={Dashboard} />
+      <Stack.Screen
+        name="Dashboard"
+        component={Dashboard}
+        options={{ gestureEnabled: true }}
+      />
       <Stack.Screen name="Wishlist" component={SavedItemsScreen} />
       <Stack.Screen name="All" component={AllItems} />
       <Stack.Screen name="Details" component={DetailsScreen} />
       <Stack.Screen name="WebView" component={WebViewScreen} />
+      <Stack.Screen name="SearchModal" component={SearchModal} />
     </Stack.Navigator>
   );
 }
