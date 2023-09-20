@@ -11,6 +11,7 @@ import AuthContext from "../auth/AuthContext";
 import FavoritesProvider from "../favorites/FavoritesProvider";
 import WebViewScreen from "../screens/WebViewScreen";
 import SearchModal from "../components/SearchModal";
+import OfflineNotificationComponent from "../components/OfflineNotificationComponent";
 
 const Stack = createNativeStackNavigator();
 const AuthStack = createNativeStackNavigator();
@@ -50,15 +51,18 @@ function UnauthenticatedStack() {
 function Navigation({ isAuthenticated }) {
   const { token } = useContext(AuthContext);
   return (
-    <NavigationContainer>
-      {token ? (
-        <FavoritesProvider>
-          <AuthenticatedStack />
-        </FavoritesProvider>
-      ) : (
-        <UnauthenticatedStack />
-      )}
-    </NavigationContainer>
+    <>
+      <OfflineNotificationComponent />
+      <NavigationContainer>
+        {token ? (
+          <FavoritesProvider>
+            <AuthenticatedStack />
+          </FavoritesProvider>
+        ) : (
+          <UnauthenticatedStack />
+        )}
+      </NavigationContainer>
+    </>
   );
 }
 
