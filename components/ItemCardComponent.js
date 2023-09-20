@@ -1,5 +1,6 @@
 import React from "react";
-import { Image, View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
 
 function ItemCardComponent({
   itemstyle,
@@ -18,11 +19,12 @@ function ItemCardComponent({
       >
         <View style={styles.cardContainer}>
           <Image
-            resizeMode="contain"
+            contentFit="contain"
             style={styles.image}
             source={{
               uri: imageUrl,
             }}
+            cachePolicy={"memory-disk"}
           />
           <View style={styles.infoText}>
             <Text style={styles.itemTitle} numberOfLines={1}>

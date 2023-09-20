@@ -54,6 +54,7 @@ const CarouselComponent = ({ navigation }) => {
           source={{ uri: item.item_image }}
           style={styles.image}
           contentFit="contain"
+          cachePolicy={"memory-disk"}
         />
       </TouchableOpacity>
     );

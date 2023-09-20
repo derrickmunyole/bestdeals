@@ -1,4 +1,5 @@
 import { create } from "apisauce";
+import cache from "../utils/cache";
 
 //API ENDPOINTS
 /*
@@ -11,7 +12,21 @@ import { create } from "apisauce";
  */
 
 const apiClient = create({
-  baseURL: "https://9244-105-162-4-124.ngrok-free.app",
+  baseURL: "https://f8da-105-162-20-50.ngrok-free.app",
 });
+
+const get = apiClient.get;
+
+apiClient.get = async (url, params, axiosConfig) => {
+  const response = await get(url, params, axiosConfig);
+
+  if (response.ok) {
+    cache.store(url, response.data);
+    return response;
+  }
+
+  const data = await cache.get(url);
+  return data ? { ok: true, data } : response;
+};
 
 export default apiClient;
